@@ -15,6 +15,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "8761176747:AAHJUoC3FeCuj_v8v8qGg1MV-kE2V_cCst4")
 DOWNLOAD_DIR = "/tmp/compressor_bot/"
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB limit
+ALLOWED_USERS = [971043547]  # Only these user IDs can use the bot
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
@@ -48,6 +49,10 @@ def get_merge_menu():
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        await update.message.reply_text("❌ This bot is private.")
+        return
+    
     user = update.effective_user.first_name
     await update.message.reply_text(
         f"👋 Hey {user}! I'm your **File Compressor Bot** 📦\n\n"
@@ -59,6 +64,9 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /help command"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        return
+    
     await update.message.reply_text(
         "📦 *File Compressor Bot*\n\n"
         "Choose what you want to do:",
@@ -68,6 +76,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle button callbacks"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        await update.callback_query.answer("This bot is private.", show_alert=True)
+        return
+    
     query = update.callback_query
     await query.answer()
     
@@ -124,6 +136,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Finish merge and ask for caption"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        return
+    
     if 'merge_files' not in context.user_data or not context.user_data['merge_files']:
         await update.message.reply_text("❌ No files to merge!")
         return
@@ -146,12 +161,18 @@ async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def skip_caption_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Skip caption callback"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        return
+    
     query = update.callback_query
     await query.answer()
     await create_and_send_archive(update, context, None)
 
 async def handle_caption(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle caption input"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        return
+    
     if not context.user_data.get('waiting_caption'):
         return
     
@@ -248,6 +269,9 @@ async def create_and_send_archive(update: Update, context: ContextTypes.DEFAULT_
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle incoming documents"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        return
+    
     document = update.message.document
     if not document:
         return
@@ -342,6 +366,9 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def skip_caption_single_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Skip caption for single file"""
+    if update.effective_user.id not in ALLOWED_USERS:
+        return
+    
     query = update.callback_query
     await query.answer()
     
