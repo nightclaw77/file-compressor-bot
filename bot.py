@@ -2,7 +2,7 @@
 """
 File Compressor Bot for Telegram
 Compresses files to zip/rar and can merge multiple files into one archive.
-Stylish button interface!
+Styled buttons with colors!
 """
 
 import os
@@ -19,32 +19,32 @@ ALLOWED_USERS = [971043547]  # Only these user IDs can use the bot
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# Stylish menu keyboard with colors
+# Stylish menu keyboard with colors using bg_color and text_color
 def get_main_menu():
     keyboard = [
-        [InlineKeyboardButton("📇 Compress to ZIP", callback_data="mode_zip", style="primary")],
-        [InlineKeyboardButton("📦 Compress to RAR", callback_data="mode_rar", style="primary")],
-        [InlineKeyboardButton("🔀 Merge Files", callback_data="mode_merge", style="primary")],
-        [InlineKeyboardButton("❌ Cancel", callback_data="cancel", style="secondary")],
+        [InlineKeyboardButton("📇 Compress to ZIP", callback_data="mode_zip", bg_color=Update.BUTTON_COLOR_PRIMARY)],
+        [InlineKeyboardButton("📦 Compress to RAR", callback_data="mode_rar", bg_color=Update.BUTTON_COLOR_PRIMARY)],
+        [InlineKeyboardButton("🔀 Merge Files", callback_data="mode_merge", bg_color=Update.BUTTON_COLOR_PRIMARY)],
+        [InlineKeyboardButton("❌ Cancel", callback_data="cancel", bg_color=Update.BUTTON_COLOR_DANGER)],
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def get_zip_menu():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("📇 Compress to ZIP", callback_data="mode_zip", style="primary")],
-        [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_menu", style="secondary")],
+        [InlineKeyboardButton("📇 Compress to ZIP", callback_data="mode_zip", bg_color=Update.BUTTON_COLOR_PRIMARY)],
+        [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_menu", bg_color=Update.BUTTON_COLOR_SECONDARY)],
     ])
 
 def get_rar_menu():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("📦 Compress to RAR", callback_data="mode_rar", style="primary")],
-        [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_menu", style="secondary")],
+        [InlineKeyboardButton("📦 Compress to RAR", callback_data="mode_rar", bg_color=Update.BUTTON_COLOR_PRIMARY)],
+        [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_menu", bg_color=Update.BUTTON_COLOR_SECONDARY)],
     ])
 
 def get_merge_menu():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("✅ Done - Create Archive", callback_data="done_merge", style="primary")],
-        [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_menu", style="secondary")],
+        [InlineKeyboardButton("✅ Done - Create Archive", callback_data="done_merge", bg_color=Update.BUTTON_COLOR_SUCCESS)],
+        [InlineKeyboardButton("🔙 Back to Menu", callback_data="back_menu", bg_color=Update.BUTTON_COLOR_SECONDARY)],
     ])
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -81,9 +81,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     
     query = update.callback_query
-    await query.answer()
-    
-    user_id = update.effective_user.id
     
     if query.data == "mode_zip":
         context.user_data['compress_mode'] = 'zip'
@@ -155,7 +152,7 @@ async def done_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Reply with your caption, or send /skip to continue without caption.",
         parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("⏭️ Skip", callback_data="skip_caption", style="secondary")]
+            [InlineKeyboardButton("⏭️ Skip", callback_data="skip_caption", bg_color=Update.BUTTON_COLOR_SECONDARY)]
         ])
     )
 
@@ -350,7 +347,7 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📦 `{base_name}.{ext}`\n\n"
             "📝 *Reply with caption* or tap Skip.",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("⏭️ Skip", callback_data="skip_caption_single", style="secondary")]
+                [InlineKeyboardButton("⏭️ Skip", callback_data="skip_caption_single", bg_color=Update.BUTTON_COLOR_SECONDARY)]
             ]),
             parse_mode="Markdown"
         )
@@ -397,7 +394,6 @@ def main():
     
     # Buttons
     application.add_handler(CallbackQueryHandler(button_callback))
-    # done_merge handled in button_callback
     application.add_handler(CallbackQueryHandler(skip_caption_callback, pattern="skip_caption"))
     application.add_handler(CallbackQueryHandler(skip_caption_single_callback, pattern="skip_caption_single"))
     
